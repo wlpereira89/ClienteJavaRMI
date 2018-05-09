@@ -15,5 +15,6 @@ import java.rmi.RemoteException;
 public interface InterfaceCli extends Remote {
     
     public String echo(String umaStringQualquer) throws RemoteException;
+    public boolean notificarInteresse(String nomeArquivo) throws RemoteException; //permite que seja notificado o cliente de um novo arquivo que ele tenha interesse
     
 }

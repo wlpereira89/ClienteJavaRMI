@@ -27,6 +27,13 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
         System.out.println(umaStringQualquer);
         return umaStringQualquer;
     }
+
+    @Override
+    public boolean notificarInteresse(String nomeArquivo) throws RemoteException{
+        System.out.println("O arquivo: "+nomeArquivo+" que você tinha interesse está disponivel você pode baixar ele agora");
+        
+        return true;
+    }
     
     
     
