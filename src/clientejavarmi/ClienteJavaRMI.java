@@ -5,17 +5,32 @@
  */
 package clientejavarmi;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
 /**
  *
- * @author wagner
+ * @author allan
  */
 public class ClienteJavaRMI {
-
-    /**
-     * @param args the command line arguments
-     */
+    
     public static void main(String[] args) {
-        // TODO code application logic here
+        try {
+            Registry referenciaServicoNomes = LocateRegistry.getRegistry(); // padrao porta 1099
+            InterfaceServ referencia_Servidor = (InterfaceServ) referenciaServicoNomes.lookup("Servidor2");
+            CliImpl cli = new CliImpl(referencia_Servidor);
+
+            referencia_Servidor.chamar("Cliente1", cli);
+            
+            
+        } catch (RemoteException ex) {
+            System.out.println("Classe Cliente: Erro ao utilizar servico de nomes  -RemoteException"+ex);
+        } catch (NotBoundException ex) {
+            System.out.println("Classe Cliente: Erro ao utilizar servico de nomes - NotBoundException"+ex);
+        }
+
     }
     
 }
