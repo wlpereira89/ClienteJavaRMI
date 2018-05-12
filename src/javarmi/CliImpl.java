@@ -63,5 +63,17 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
             System.out.println("Este peer não possui arquivos");
         }
     }
+    public String[] getArquivo(String nomeArquivo){
+        String[] arq = null;
+        if (arquivos.size() >= 1) {
+            for (int i = 0; i < arquivos.size(); i++) {
+                arq = arquivos.get(i);
+                if (arq[0].equals(nomeArquivo)) {
+                    return arq;
+                }
+            }
+        }
+        return null;
+    }
     
 }

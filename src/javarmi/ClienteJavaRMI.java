@@ -29,6 +29,7 @@ public class ClienteJavaRMI {
     public static void main(String[] args) throws IOException, ParseException {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         Boolean permanecer = true;
+        String[] arquivo;
 
         try {
             referenciaServicoNomes = LocateRegistry.getRegistry(); // padrao porta 1099
@@ -73,7 +74,7 @@ public class ClienteJavaRMI {
                     case "3":
                         System.out.println("Escreva o nome do arquivo");
                         nome = in.readLine();
-                        String[] arquivo = referencia_Servidor.downloadArquivo(nome);
+                        arquivo = referencia_Servidor.downloadArquivo(nome);
                         if (arquivo != null) {
                             if (cli.salvarArquivo(arquivo)) {
                                 System.out.println("Arquivo baixo com sucesso");
@@ -96,13 +97,28 @@ public class ClienteJavaRMI {
                                     referencia_Servidor.registrarInteresse(nome, cli, dataLimite);
                             }
                         }
-                        arquivo = null;
                         break;
                     case "4":
+                        System.out.println("Escreva o nome do arquivo");
+                        nome = in.readLine();
+                        arquivo = cli.getArquivo(nome);
+                        if (arquivo!=null)
+                        {
+                            referencia_Servidor.uploadArquivo(arquivo);
+                            System.out.println("Arquivo enviado com sucesso");
+                        }
+                        else{
+                            System.out.println("Arquivo não encontrado");
+                        }
                         break;
                     case "5":
-                        break;
-                    case "6":
+                         System.out.println("Escreva o nome do arquivo");
+                        nome = in.readLine();
+                        System.out.println("Escreva o conteudo do arquivo");
+                        conteudo = in.readLine();
+                        String[] arq = {nome,conteudo};
+                        referencia_Servidor.uploadArquivo(arq); 
+                        System.out.println("Arquivo enviado com sucesso");
                         break;
                     default:
                         System.out.println("Opção inválida digite nova opção");
