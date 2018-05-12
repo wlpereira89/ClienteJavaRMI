@@ -39,11 +39,8 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
         return true;
     }
     public boolean escreverArquivo(String nome, String conteudo){
-        String[] nova  = {"",""};
-        System.out.println(nome+" "+conteudo+" teste1");
-        nova[0] = nome;
-        nova[1] = conteudo;
-        System.out.println(nova.toString());
+        String[] nova  = {nome,conteudo};
+        
         arquivos.add(nova);
         return true;
     }

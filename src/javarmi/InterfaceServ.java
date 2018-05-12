@@ -8,6 +8,7 @@ package javarmi;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -21,5 +22,6 @@ public interface InterfaceServ extends Remote {
     public void listarArquivos() throws RemoteException; //lista arquivos no servidor
     public void uploadArquivo(String[] arquivo) throws RemoteException; //insere um arquivo no servidor e notifica quem tenha interesse nesse arquivo
     public void registrarInteresse(String arquivo, InterfaceCli refCliente, Date dataLimite) throws RemoteException;
-    
+    public boolean cancelarInteresse(String nome, InterfaceCli refCliente) throws RemoteException;
+    public List<String> listarInfoArquivos() throws RemoteException;
 }

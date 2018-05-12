@@ -16,6 +16,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -35,17 +36,25 @@ public class ClienteJavaRMI {
             referenciaServicoNomes = LocateRegistry.getRegistry(); // padrao porta 1099
             referencia_Servidor = (InterfaceServ) referenciaServicoNomes.lookup("Servidor2");
             CliImpl cli = new CliImpl(referencia_Servidor);
-
+            boolean mostrar = true;
             referencia_Servidor.chamar("Cliente1", cli);
             while (permanecer) {
-                System.out.println("Digite o que deseja fazer:");
 
-                System.out.println("1 - Escrever novo arquivo");
-                System.out.println("2 - Listar próprios arquivos");
-                System.out.println("3 - Baixar arquivo");
-                System.out.println("4 - Fazer upload próprio para o servidor");
-                System.out.println("5 - Escrever arquivo no servidor");
-                System.out.println("0 - sair");
+                if (mostrar) {
+                    System.out.println("Digite o que deseja fazer:");
+                    System.out.println("1 - Escrever novo arquivo");
+                    System.out.println("2 - Listar próprios arquivos");
+                    System.out.println("3 - Baixar arquivo");
+                    System.out.println("4 - Fazer upload próprio para o servidor");
+                    System.out.println("5 - Escrever arquivo no servidor");
+                    System.out.println("6 - Cancelar interesse em arquivo");
+                    System.out.println("7 - Lista de arquivos do servidor");
+                    System.out.println("0 - sair");
+                    mostrar = false;
+                }
+                else{
+                    System.out.println("Precione nova opção, para ver novamente o menu, digite menu");
+                }
 
                 String opp = in.readLine();
                 String msg;
@@ -72,7 +81,7 @@ public class ClienteJavaRMI {
                         cli.listarArquivos();
                         break;
                     case "3":
-                        System.out.println("Escreva o nome do arquivo");
+                        System.out.println("Escreva o nome do arquivo que deseja baixar");
                         nome = in.readLine();
                         arquivo = referencia_Servidor.downloadArquivo(nome);
                         if (arquivo != null) {
@@ -84,41 +93,56 @@ public class ClienteJavaRMI {
 
                         } else {
                             System.out.println("O arquivo não foi localizado no servidor, deseja registrar interesse (Y,n)");
-                            switch(in.readLine())
-                            {
+                            switch (in.readLine()) {
                                 case "n":
                                     break;
                                 default:
                                     System.out.println("Digite a data limite que você espera o arquivo em formato dd/mm/aaaa, em caso de deixar em branco ou preencher incorretamente será dado 1 mês como limite");
                                     String data = in.readLine();
-                                    DateFormat df = new SimpleDateFormat ("dd/MM/yyyy");
-                                    df.setLenient (false); 
-                                    Date dataLimite = df.parse (data);
+                                    DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                                    df.setLenient(false);
+                                    Date dataLimite = df.parse(data);
                                     referencia_Servidor.registrarInteresse(nome, cli, dataLimite);
                             }
                         }
                         break;
                     case "4":
-                        System.out.println("Escreva o nome do arquivo");
+                        System.out.println("Escreva o nome do arquivo que deseja fazer upload");
                         nome = in.readLine();
                         arquivo = cli.getArquivo(nome);
-                        if (arquivo!=null)
-                        {
+                        if (arquivo != null) {
                             referencia_Servidor.uploadArquivo(arquivo);
                             System.out.println("Arquivo enviado com sucesso");
-                        }
-                        else{
+                        } else {
                             System.out.println("Arquivo não encontrado");
                         }
                         break;
                     case "5":
-                         System.out.println("Escreva o nome do arquivo");
+                        System.out.println("Escreva o nome do arquivo para inserir no servidor");
                         nome = in.readLine();
                         System.out.println("Escreva o conteudo do arquivo");
                         conteudo = in.readLine();
-                        String[] arq = {nome,conteudo};
-                        referencia_Servidor.uploadArquivo(arq); 
+                        String[] arq = {nome, conteudo};
+                        referencia_Servidor.uploadArquivo(arq);
                         System.out.println("Arquivo enviado com sucesso");
+                        break;
+                    case "6":
+                        System.out.println("Escreva o nome do arquivo que não tem mais interesse");
+                        nome = in.readLine();
+                        if (referencia_Servidor.cancelarInteresse(nome, cli)) {
+                            System.out.println("Interesse cancelado com sucesso");
+                        } else {
+                            System.out.println("Interesse não localizado");
+                        }
+                        break;
+                    case "7":
+                        List<String> infos = referencia_Servidor.listarInfoArquivos();
+                        for (int i = 0; i < infos.size(); i++) {
+                            System.out.println(infos.get(i));
+                        }
+                        break;
+                    case "menu":
+                        mostrar = true;
                         break;
                     default:
                         System.out.println("Opção inválida digite nova opção");
