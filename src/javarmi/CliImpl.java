@@ -7,6 +7,8 @@ package javarmi;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -15,9 +17,11 @@ import java.rmi.server.UnicastRemoteObject;
 public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
     
     private InterfaceServ refServidor;
-
+    private List<String[]> arquivos;
+    
     public CliImpl(InterfaceServ refServidor) throws RemoteException {
         this.refServidor = refServidor;
+        this.arquivos = new ArrayList<>();
     }
 
     
@@ -34,7 +38,30 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
         
         return true;
     }
-    
-    
+    public boolean escreverArquivo(String nome, String conteudo){
+        String[] nova  = {"",""};
+        System.out.println(nome+" "+conteudo+" teste1");
+        nova[0] = nome;
+        nova[1] = conteudo;
+        System.out.println(nova.toString());
+        arquivos.add(nova);
+        return true;
+    }
+    public boolean salvarArquivo(String[] arquivo){
+        arquivos.add(arquivo);
+        return true;
+    }
+    public void listarArquivos(){
+        if (arquivos.size() > 0) {
+            System.out.println("\nEste peer possui os aqrquivos");
+            String[] arq;
+            for (int i = 0; i < arquivos.size(); i++) {
+                arq = arquivos.get(i);
+                System.out.println(arq[0] + " - " + arq[1]);
+            }
+        } else {
+            System.out.println("Este peer não possui arquivos");
+        }
+    }
     
 }

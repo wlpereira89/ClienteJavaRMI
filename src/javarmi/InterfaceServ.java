@@ -16,10 +16,10 @@ import java.util.Date;
 public interface InterfaceServ extends Remote {
     
     public void chamar(String nomeCliente, InterfaceCli refCliente) throws RemoteException;
-    public boolean procuraArquivo(String nomeArquivo); //verifica se existe arquivo no servidor
-    public String[] downloadArquivo(String nomeArquivo); //retorna null para arquivo inexistente
-    public void listarArquivos(); //lista arquivos no servidor
-    public void uploadArquivo(String[] arquivo) throws RemoteException; //insere um arquivo no servidor
-    public void registrarInteresse(String arquivo, InterfaceCli refCliente, Date dataLimite); //permite ao cliente registrar interesse em arquivo especifico
+    public boolean procuraArquivo(String nomeArquivo) throws RemoteException; //verifica se existe arquivo no servidor
+    public String[] downloadArquivo(String nomeArquivo) throws RemoteException; //retorna null para arquivo inexistente
+    public void listarArquivos() throws RemoteException; //lista arquivos no servidor
+    public void uploadArquivo(String[] arquivo) throws RemoteException; //insere um arquivo no servidor e notifica quem tenha interesse nesse arquivo
+    public void registrarInteresse(String arquivo, InterfaceCli refCliente, Date dataLimite) throws RemoteException;
     
 }
