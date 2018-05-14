@@ -11,10 +11,11 @@ import java.rmi.RemoteException;
 /**
  *
  * @author allan
+ * @author wagner
+ * 
  */
 public interface InterfaceCli extends Remote {
     
-    public String echo(String umaStringQualquer) throws RemoteException;
-    public boolean notificarInteresse(String nomeArquivo) throws RemoteException; //permite que seja notificado o cliente de um novo arquivo que ele tenha interesse
+    public boolean notificarInteresse(String nomeArquivo) throws RemoteException; //permite que seja notificado o cliente de um novo arquivo no servidor que ele tenha interesse
     
 }

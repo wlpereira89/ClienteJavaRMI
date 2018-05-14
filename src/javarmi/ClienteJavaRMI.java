@@ -12,15 +12,16 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 /**
  *
  * @author allan
+ * @author Wagner
+ * 
  */
 public class ClienteJavaRMI {
 
@@ -37,11 +38,10 @@ public class ClienteJavaRMI {
             referencia_Servidor = (InterfaceServ) referenciaServicoNomes.lookup("Servidor2");
             CliImpl cli = new CliImpl(referencia_Servidor);
             boolean mostrar = true;
-            referencia_Servidor.chamar("Cliente1", cli);
             while (permanecer) {
 
                 if (mostrar) {
-                    System.out.println("Digite o que deseja fazer:");
+                    System.out.println("\nDigite o que deseja fazer:");
                     System.out.println("1 - Escrever novo arquivo");
                     System.out.println("2 - Listar próprios arquivos");
                     System.out.println("3 - Baixar arquivo");
@@ -50,93 +50,108 @@ public class ClienteJavaRMI {
                     System.out.println("6 - Cancelar interesse em arquivo");
                     System.out.println("7 - Lista de arquivos do servidor");
                     System.out.println("0 - sair");
-                    mostrar = false;
-                }
-                else{
-                    System.out.println("Precione nova opção, para ver novamente o menu, digite menu");
+                    //mostrar = false;
+                } else {
+                    System.out.println("\nPrecione nova opção, para ver novamente o menu, digite menu");
                 }
 
                 String opp = in.readLine();
                 String msg;
-                String nome;
+                String nomeArquivo;
                 String conteudo;
                 switch (opp) {
-
-                    // Sair
-                    case "0":
+                    case "0":  // Sair
                         System.exit(0);
                         break;
-                    case "1":
-                        System.out.println("Escreva o nome do arquivo");
-                        nome = in.readLine();
-                        System.out.println("Escreva o conteudo do arquivo");
+                    case "1":   // Escrever novo arquivo
+                        System.out.println("\nEscreva o nome do arquivo");
+                        nomeArquivo = in.readLine();
+                        System.out.println("\nEscreva o conteudo do arquivo");
                         conteudo = in.readLine();
-                        if (cli.escreverArquivo(nome, conteudo)) {
-                            System.out.println("Arquivo inserido com sucesso");
+                        if (cli.escreverArquivo(nomeArquivo, conteudo)) {
+                            System.out.println("\nArquivo inserido com sucesso");
                         } else {
-                            System.out.println("Erro na inserção do arquivo");
+                            System.out.println("\nErro na inserção do arquivo");
                         }
                         break;
-                    case "2":
+                    case "2": // Listar arquivos proprios
                         cli.listarArquivos();
                         break;
-                    case "3":
-                        System.out.println("Escreva o nome do arquivo que deseja baixar");
-                        nome = in.readLine();
-                        arquivo = referencia_Servidor.downloadArquivo(nome);
+                    case "3": // Baixar arquivo
+                        System.out.println("\nEscreva o nome do arquivo que deseja baixar");
+                        nomeArquivo = in.readLine();
+                        arquivo = cli.getRefServidor().downloadArquivo(nomeArquivo);
                         if (arquivo != null) {
                             if (cli.salvarArquivo(arquivo)) {
-                                System.out.println("Arquivo baixo com sucesso");
+                                System.out.println("\nArquivo copiado com sucesso");
                             } else {
-                                System.out.println("Erro no salvamento do arquivo");
+                                System.out.println("\nErro no salvamento do arquivo");
                             }
-
                         } else {
-                            System.out.println("O arquivo não foi localizado no servidor, deseja registrar interesse (Y,n)");
+                            System.out.println("\nO arquivo não foi localizado no servidor, deseja registrar interesse (Y,n)");
                             switch (in.readLine()) {
                                 case "n":
                                     break;
                                 default:
-                                    System.out.println("Digite a data limite que você espera o arquivo em formato dd/mm/aaaa, em caso de deixar em branco ou preencher incorretamente será dado 1 mês como limite");
-                                    String data = in.readLine();
-                                    DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-                                    df.setLenient(false);
-                                    Date dataLimite = df.parse(data);
-                                    referencia_Servidor.registrarInteresse(nome, cli, dataLimite);
+                                    boolean condicao = true;
+                                    String dias = null;
+                                    while (condicao) {
+                                        System.out.println("\nDigite o numero de dias a esperar:");
+                                        dias = in.readLine();
+                                        condicao = false;
+                                        try {
+                                            Long.parseLong(dias);
+                                        } catch (NumberFormatException ex) {
+                                            System.out.println("\nDigite apenas numeros inteiros positivos!");
+                                            condicao = true;
+                                        }
+                                        if (!condicao) {
+                                            if (Integer.parseInt(dias) < 0) {
+                                                System.out.println("Digite apenas numeros inteiros positivos");
+                                                condicao = true;
+                                            }
+                                        }
+                                    }
+                                    Calendar hoje = Calendar.getInstance();
+                                    int ndias = Integer.parseInt(dias);
+                                    hoje.add(Calendar.DAY_OF_MONTH, ndias);
+                                    Date dataLimite = hoje.getTime();
+                                    cli.getRefServidor().registrarInteresse(nomeArquivo, cli, dataLimite);
                             }
                         }
                         break;
-                    case "4":
-                        System.out.println("Escreva o nome do arquivo que deseja fazer upload");
-                        nome = in.readLine();
-                        arquivo = cli.getArquivo(nome);
+                    case "4":  // Fazer upload para servidor
+                        System.out.println("\nEscreva o nome do arquivo que deseja fazer upload");
+                        nomeArquivo = in.readLine();
+                        arquivo = cli.getArquivo(nomeArquivo);
                         if (arquivo != null) {
-                            referencia_Servidor.uploadArquivo(arquivo);
-                            System.out.println("Arquivo enviado com sucesso");
+                            cli.getRefServidor().uploadArquivo(arquivo);
+                            System.out.println("\nArquivo enviado com sucesso");
                         } else {
-                            System.out.println("Arquivo não encontrado");
+                            System.out.println("\nArquivo não encontrado");
                         }
                         break;
-                    case "5":
-                        System.out.println("Escreva o nome do arquivo para inserir no servidor");
-                        nome = in.readLine();
-                        System.out.println("Escreva o conteudo do arquivo");
+                    case "5":  // Escrever arquivo no servidor
+                        System.out.println("\nEscreva o nome do arquivo para inserir no servidor");
+                        nomeArquivo = in.readLine();
+                        System.out.println("\nEscreva o conteudo do arquivo");
                         conteudo = in.readLine();
-                        String[] arq = {nome, conteudo};
-                        referencia_Servidor.uploadArquivo(arq);
-                        System.out.println("Arquivo enviado com sucesso");
+                        String[] arq = {nomeArquivo, conteudo};
+                        cli.getRefServidor().uploadArquivo(arq);
+                        System.out.println("\nArquivo enviado com sucesso");
                         break;
-                    case "6":
-                        System.out.println("Escreva o nome do arquivo que não tem mais interesse");
-                        nome = in.readLine();
-                        if (referencia_Servidor.cancelarInteresse(nome, cli)) {
-                            System.out.println("Interesse cancelado com sucesso");
+                    case "6":  // Cancelar interesse em arquivo
+                        System.out.println("\nEscreva o nome do arquivo que não tem mais interesse");
+                        nomeArquivo = in.readLine();
+                        if (cli.getRefServidor().cancelarInteresse(nomeArquivo, cli)) {
+                            System.out.println("\nInteresse cancelado com sucesso");
                         } else {
-                            System.out.println("Interesse não localizado");
+                            System.out.println("\nInteresse não localizado");
                         }
                         break;
-                    case "7":
-                        List<String> infos = referencia_Servidor.listarInfoArquivos();
+                    case "7": // Lista de arquivos do servidor
+                        List<String> infos = cli.getRefServidor().listarInfoArquivos();
+                        System.out.println("\nDetalhes de arquivos no servidor:");
                         for (int i = 0; i < infos.size(); i++) {
                             System.out.println(infos.get(i));
                         }
@@ -145,9 +160,8 @@ public class ClienteJavaRMI {
                         mostrar = true;
                         break;
                     default:
-                        System.out.println("Opção inválida digite nova opção");
+                        System.out.println("\nOpção inválida digite nova opção");
                         break;
-
                 }
             }
 
@@ -156,7 +170,5 @@ public class ClienteJavaRMI {
         } catch (NotBoundException ex) {
             System.out.println("Classe Cliente: Erro ao utilizar servico de nomes - NotBoundException" + ex);
         }
-
     }
-
 }
