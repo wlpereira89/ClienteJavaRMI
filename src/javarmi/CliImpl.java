@@ -34,6 +34,10 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
         this.arquivos = new ArrayList<>();
         this.notificado="";
     }
+    /**
+     * Método que consome a última notificação de arquivo feita pelo servidor
+     * @return String - Notificação
+     */
     public String pushNotify(){
         String not = this.notificado;
         this.notificado = "";
@@ -48,7 +52,7 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
     }
     
     /**
-     * Método invocado pelo servidor para notificar clientes interessados em arquivos que não existiam anteriormente
+     * Método invocado pelo servidor para notificar clientes interessados em arquivos que não existiam anteriormente, e salva o nome do arquivo para download se for pedido
      * @param nomeArquivo nome do arquivo que estava sendo aguardado e agora está disponível no servidor
      * @return boolean - true caso a notificação ocorra com sucesso
      * @throws RemoteException
@@ -59,12 +63,8 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
         notificado = nomeArquivo;
         return true;
     }
-    private void perguntarDown() throws RemoteException{        
-        this.salvarArquivo(refServidor.downloadArquivo(notificado));
-        notificado = "";
-    }
     /**
-     * Método responsável por criar um arquivo novo no cliente
+     * Método responsável por criar um arquivo novo no cliente pelos seus dados
      * @param nome nome do arquivo que será criado
      * @param conteudo conteúdo do arquivo que será criado
      * @return boolean - true caso criação do arquivo ocorra com sucesso
@@ -72,16 +72,17 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
     public boolean escreverArquivo(String nome, String conteudo){
         String[] nova  = {nome,conteudo};
         
-        arquivos.add(nova);
-        return true;
+        return this.salvarArquivo(nova);
     }
     
     /**
-     * Método responsável por salvar o arquivo na lista de arquivos do cliente
+     * Método responsável por salvar o arquivo na lista de arquivos do cliente usando diretamente a abstração de String[]
      * @param arquivo nome do arquivo a ser salvo
      * @return boolean - true caso operação ocorra com sucesso
      */
-    public boolean salvarArquivo(String[] arquivo){
+    public boolean salvarArquivo(String[] arquivo){        
+        if (this.removeArq(arquivo[0]))
+            System.out.println("Arquivo já existia e foi atualizado");            
         arquivos.add(arquivo);
         return true;
     }
@@ -118,6 +119,24 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
             }
         }
         return null;
+    }
+    /**
+     * Método responsável por obter um arquivo da lista de arquivos do cliente
+     * @param nomeArquivo  nome do arquivo a ser obtido
+     * @return Boolean - true se houver arquivo removido, false se não houver arquivo
+     */
+    private boolean removeArq(String nomeArquivo){
+        String[] arq = null;
+        if (arquivos.size() >= 1) {
+            for (int i = 0; i < arquivos.size(); i++) {
+                arq = arquivos.get(i);
+                if (arq[0].equals(nomeArquivo)) {
+                    arquivos.remove(i);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
 }
