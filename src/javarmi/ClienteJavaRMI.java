@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author allan
  * @author Wagner
- * 
+ *
  */
 public class ClienteJavaRMI {
 
@@ -42,24 +42,24 @@ public class ClienteJavaRMI {
 
                 if (mostrar) {
                     System.out.println("\nDigite o que deseja fazer:");
-                    System.out.println("1 - Escrever novo arquivo");
+                    System.out.println("1 - Escrever novo arquivo, local");
                     System.out.println("2 - Listar próprios arquivos");
                     System.out.println("3 - Baixar arquivo");
-                    System.out.println("4 - Fazer upload próprio para o servidor");
-                    System.out.println("5 - Escrever arquivo no servidor");
+                    System.out.println("4 - Fazer upload local no servidor");
+                    System.out.println("5 - Escrever arquivo no servidor (sem salvamento local)");
                     System.out.println("6 - Cancelar interesse em arquivo");
                     System.out.println("7 - Lista de arquivos do servidor");
                     System.out.println("0 - sair");
-                    //mostrar = false;
+                    mostrar = false;
                 } else {
-                    System.out.println("\nPrecione nova opção, para ver novamente o menu, digite menu");
+                    System.out.println("\nDigite nova opção, para ver o menu novamente precione enter");
                 }
 
                 String opp = in.readLine();
-                String msg;
+                //String msg;
                 String nomeArquivo;
                 String conteudo;
-                switch (opp) {
+                switch (opp.trim()) {
                     case "0":  // Sair
                         System.exit(0);
                         break;
@@ -156,13 +156,29 @@ public class ClienteJavaRMI {
                             System.out.println(infos.get(i));
                         }
                         break;
-                    case "menu":
+                    case "8":
+                        nomeArquivo = cli.pushNotify();
+                        if (!nomeArquivo.equals("")) {
+                            arquivo = cli.getRefServidor().downloadArquivo(nomeArquivo);
+                            if (arquivo != null) {
+                                if (cli.salvarArquivo(arquivo)) {
+                                    System.out.println("\nArquivo copiado com sucesso");
+                                } else {
+                                    System.out.println("\nErro no salvamento do arquivo");
+                                }
+                            }
+                        } else {
+                            System.out.println("\nOpção inválida");
+                        }
+                        break;
+                    case "":
                         mostrar = true;
                         break;
                     default:
-                        System.out.println("\nOpção inválida digite nova opção");
+                        System.out.println("\nOpção inválida");
                         break;
                 }
+
             }
 
         } catch (RemoteException ex) {

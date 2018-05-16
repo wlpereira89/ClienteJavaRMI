@@ -5,10 +5,15 @@
  */
 package javarmi;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -20,12 +25,20 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
     
     private InterfaceServ refServidor; // referencia do servidor
     private List<String[]> arquivos; // lista de arquivos disponiveis no cliente
+    private String notificado;
+    
+    
     
     public CliImpl(InterfaceServ refServidor) throws RemoteException {
         this.refServidor = refServidor;
         this.arquivos = new ArrayList<>();
+        this.notificado="";
     }
-    
+    public String pushNotify(){
+        String not = this.notificado;
+        this.notificado = "";
+        return not;
+    }
     /**
      * Método que retorna a referencia do servidor no serviço de nomes
      * @return IntefaceServ - referência do servidor
@@ -42,10 +55,14 @@ public class CliImpl extends UnicastRemoteObject implements InterfaceCli{
      */
     @Override
     public boolean notificarInteresse(String nomeArquivo) throws RemoteException{
-        System.out.println("\nO arquivo: "+nomeArquivo+" que você tinha interesse está disponivel para download agora!");
+        System.out.println("\nO arquivo: "+nomeArquivo+" que você tinha interesse está disponivel para download agora! Se quiser baixar o arquivo precione 8");
+        notificado = nomeArquivo;
         return true;
     }
-    
+    private void perguntarDown() throws RemoteException{        
+        this.salvarArquivo(refServidor.downloadArquivo(notificado));
+        notificado = "";
+    }
     /**
      * Método responsável por criar um arquivo novo no cliente
      * @param nome nome do arquivo que será criado
